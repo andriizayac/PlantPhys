@@ -1,0 +1,98 @@
+---
+title: 'Lab 2: Spectrophotometry'
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+### Data
+
+Create two datasets: 1-standard curve, 2-plant extract measurements. The columns represent the following:  
+**BSA_conc**: concentrations of BSA protein in micrograms/ml, prepared during the lab.  
+**BSAabsorption**: absorbtion of BSA samples at 595 nm light, measured during the lab on spectrophotometer.  
+**p_ratio**: plant extract diluted samples, known dilution ratios, but unknown concentration.  
+**p_absorption**: absorption of plant extract samples.  
+**p_concentration**: concentration of proteins in the plant extract samples, set to NA as they are unknown so far, and will be calculated later. 
+```{r}
+std_data=data.frame(BSA_conc=sort(rep(c(0,5,10,15,20,25),2)),
+                    BSAabsorption=c(0.3,0.308,0.409,0.438,0.516,0.53,0.599,0.6,0.685,0.696,0.745,0.764))
+extract=data.frame(p_ratio=c("1/10","1/10","1/50","1/50","1/100","1/100"), 
+                   p_absorption=c(1.249,1.289,0.654,0.576,0.493,0.476),
+                   p_concentration=NA)
+std_data
+extract
+```
+
+### Standard Curve
+
+Build a standard curve (linear regression) using BSA concentration and absorption values.
+```{r}
+curve=lm(BSAabsorption~BSA_conc, data=std_data)
+paste0("y = ",round(curve[[1]][1],4)," + ",round(curve[[1]][2],4),"*x", sep="") # linear equation explaining the relationship of BSA concentration and light absorption
+
+r2=summary(curve)$r.squared 
+paste0("r2 = ", round(r2,3))
+
+```
+
+### Plant extract concentrations
+
+Find concentrations of plant extract. By looking at the equation of our standard curve, we know the concentrations of BSA and their absorbance. Our goal is to find the concentrations of our plant extract (x values in the equation), based on the absorbance rates we measured (y values).
+Therefore, in the equation:  
+_y = 0.33 + 0.0179 * x_,  
+the known is _y_, and we want to solve for the unknown _x_ (concentration of plant extract):  
+_x = (y - 0.33)/0.0179_
+```{r}
+extract$p_concentration=(extract$p_absorption-curve[[1]][1])/curve[[1]][2]
+extract
+```
+
+
+Convert dilutions of our samples back to the true values.
+We know that we diluted sample **1/10** ten times, **1/50** fifty, and so on. To find the concentration of the original extract (the one we tested today, and saved for next time), we need to multiply each calculated concentration by the respective dilution factor (10, 50, 100).  
+The variability in the numbers found is a measurement error, and we can take a mean, and sd to quantify it.
+Note: at this step we exclude plant samples with the ratio of 1/10 as they values were too high to be used with our standard curve. 
+```{r}
+sample=extract$p_concentration[3:6]*c(50,50,100,100)
+sample
+c(mean=mean(sample),sd=sd(sample))
+```
+
+### Conclusion
+
+We conclude that the concentration of proteins in the plant extract is about 848.7 micrograms/ml, which is the same as 0.8487 mg/ml.
+
+### Plotting the standard curve
+
+We can build a plot of a standard curve with plant extract data points on it.  
+Note: the line represenets a simple least squares regression based on all BSA points; points of the unknown (plant extract in this case) will always be on the line because the we use the equation to find concentrations.  
+Note: two points of plant extract are not on the plot as they were beyond the _x_ range of the standard curve. We cannot assume that the relationship is linear outside of the tested range.
+```{r}
+
+plot(std_data$BSAabsorption~std_data$BSA_conc,xlab="Protein concentration [micrograms/ml]",ylab = "Absorbance at 595 nm",pch=19,main="Protein absorbance",xaxp=c(0,25,25))+
+  #grid()+
+  abline(curve[[1]][1],curve[[1]][2])+
+  points(extract$p_absorption~extract$p_concentration,col="red",pch=19)+
+  text(x=0,y=0.72, labels = ("Plant extract"),col="red",pos=4)+
+  text(x=0,y=0.68, labels="BSA", col="Black",pos=4)+
+  text(10,0.75,labels=paste0("r2 = ", round(r2,3)),cex=0.75,pos=4)+
+  text(10, 0.72,labels=c("y = 0.33 + 0.0179 * x"),cex=0.75,pos=4)+
+  abline(h=extract$p_absorption,v=extract$p_concentration,col="gray",lty="dashed")
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
