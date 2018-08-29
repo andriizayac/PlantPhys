@@ -170,9 +170,9 @@ paste0(&quot;r2 = &quot;, round(r2,3))</code></pre>
 </div>
 <div id="plant-extract-concentrations" class="section level3">
 <h3>Plant extract concentrations</h3>
-<p>Find concentrations of plant extract. By looking at the equation of our standard curve, we know the concentrations of BSA and their absorbance. Our goal is to find the concentrations of our plant extract (x values in the equation), based on the absorbance rates we measured (y values). Therefore, in the equation:<br />
+<p>Find concentrations of proteins in plant extract. By looking at the equation of our standard curve, we know the concentrations of BSA and their absorbance. Our goal is to find the concentrations of our plant extract (x values in the equation), based on the absorbance we measured (y values). Therefore, in the equation:<br />
 <em>y = 0.33 + 0.0179 * x</em>,<br />
-the known is <em>y</em>, and we want to solve for the unknown <em>x</em> (concentration of plant extract):<br />
+the known is <em>y</em>, and we want to solve for the unknown <em>x</em> (concentration of protein plant extract):<br />
 <em>x = (y - 0.33)/0.0179</em></p>
 <pre class="r"><code>extract$p_concentration=(extract$p_absorption-curve[[1]][1])/curve[[1]][2]
 extract</code></pre>
@@ -183,8 +183,8 @@ extract</code></pre>
 ## 4    1/50        0.576       14.000266
 ## 5   1/100        0.493        9.359691
 ## 6   1/100        0.476        8.409212</code></pre>
-<p>Convert dilutions of our samples back to the true values. We know that we diluted sample <strong>1/10</strong> ten times, <strong>1/50</strong> fifty, and so on. To find the concentration of the original extract (the one we tested today, and saved for next time), we need to multiply each calculated concentration by the respective dilution factor (10, 50, 100).<br />
-The variability in the numbers found is a measurement error, and we can take a mean, and sd to quantify it. Note: at this step we exclude plant samples with the ratio of 1/10 as they values were too high to be used with our standard curve.</p>
+<p>Convert dilutions of our samples back to the true concentration value. We know that we diluted sample <strong>1/10</strong> ten times, <strong>1/50</strong> fifty, and so on. To find the concentration of the original extract (the one we tested today, and saved for next time), we need to multiply each calculated concentration by the respective dilution factor (10, 50, 100).<br />
+The variability in the numbers found is a measurement error, and we can take a mean, and sd to quantify it. Note: at this step we exclude plant samples with the ratio of 1/10 as their values were too high to be used with our standard curve.</p>
 <pre class="r"><code>sample=extract$p_concentration[3:6]*c(50,50,100,100)
 sample</code></pre>
 <pre><code>## [1] 918.0644 700.0133 935.9691 840.9212</code></pre>
